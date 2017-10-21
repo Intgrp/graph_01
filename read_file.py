@@ -1,3 +1,4 @@
+#-*- coding=utf-8 -*-
 import numpy as np
 import pandas as pd
 import networkx as nx
@@ -59,7 +60,7 @@ def drwa_map(data,ss):
         degree.append(temp)#求度数和
 
 
-    print("degree（度分布）:",degree)
+    print("degree(度的分布):",degree)
     # 计算各个节点的群聚系数
     cluster = nx.clustering(G)
     print("Cluster（聚类系数）:",cluster)
