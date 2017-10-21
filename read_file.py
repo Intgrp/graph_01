@@ -1,3 +1,4 @@
+#-*- coding=utf-8 -*-
 import numpy as np
 import pandas as pd
 import networkx as nx
@@ -58,34 +59,51 @@ def drwa_map(data,ss):
                 temp = temp + 1
         degree.append(temp)#求度数和
 
-
-    print("degree（度分布）:",degree)
+    print("degree:",degree)
     # 计算各个节点的群聚系数
-    cluster = nx.clustering(G)
-    print("Cluster（聚类系数）:",cluster)
+    cluster = list(nx.clustering(G).values())
+    print("Cluster:",cluster)
     # 计算核数
-    print("k_corona(核数):",nx.core_number(G))
+    core_number = list(nx.core_number(G).values())
+    print("k_corona:",core_number)
 
-    graphs = nx.connected_component_subgraphs(G)
-    #通过核的方法获得图的子图
-    for g in graphs:
-        #计算平均最短路
-        print("average_shortest_path_length（平均最短路径长度）:", nx.average_shortest_path_length(g))
-        #print("all_shortest_path",nx.all_pairs_shortest_path_length(G))
-    #计算中心
-    #centrality = nx.degree_centrality(G)
-    #print("centrality（中心度）:", centrality)
-    #nx.betweenness_centrality(G,)
 
-    plt.subplot(1, 2, 1)
-    plt.bar(range(len(degree)), degree)#画直方图展示出来
-    plt.subplot(1, 2, 2)
+    if nx.is_connected(G):
+        average_shortest = nx.average_shortest_path_length(G)
+        print("average_shortest:", average_shortest)
+    else:
+        # 获得图的子图
+        graphs = nx.connected_component_subgraphs(G)
+        average_shortest = []
+        for g in graphs:
+            # 计算平均最短路
+            print(g)
+            if len(g)<=1: #公式是avg/(n*(n-1))，所以连1都不能
+                #len(g)返回的是g的节点数
+                average_shortest.append(0)
+            else:
+                average_shortest.append(nx.average_shortest_path_length(g))
+                print("average_shortest_path_length:", nx.average_shortest_path_length(g))
+    plt.subplot(2,3,1)
+    plt.bar(range(len(degree)), degree)#画度分布的直方图展示出来
+    plt.title("degree")
+    plt.subplot(2,3,2)
+    plt.plot(range(len(cluster)),cluster)#画每个点的聚类系数
+    plt.title("cluster")
+    plt.subplot(2,3,3)
+    plt.plot(range(len(core_number)),core_number)#画核数分布图
+    plt.title("core_number")
+    plt.subplot(2,3,4)
+    plt.bar(range(len(average_shortest)),average_shortest)#画平均最短路径长度
+    plt.title("average_shortest")
+    plt.subplot(2,3,5)
     nx.draw(G,with_labels=True)
+    plt.title(ss + (" network"))
     plt.show()
 
 
 name,hometown,dialect = read_xls()
 drwa_map(name,"name")
-#drwa_map(hometown,"hometown")
-#drwa_map(dialect,"dialect")
-#plt.show()
+drwa_map(hometown,"hometown")
+drwa_map(dialect,"dialect")
+plt.show()
