@@ -6,11 +6,8 @@ import xlrd
 import matplotlib.pyplot as plt
 
 #读取Excel表格数据
-def read_xls(filename="write.xls"):
+def read_xls(filename="../write.xls"):
     data = xlrd.open_workbook(filename)
-    name = []
-    hometown=[]
-    dialect=[]
     name = data.sheets()[0]  # 通过索引顺序获取
     hometown = data.sheets()[1]  # 通过索引顺序获取
     dialect = data.sheets()[2]  # 通过索引顺序获取
@@ -44,7 +41,8 @@ def printList(table):
 
 #构建图，并且绘制图的结构
 def drwa_map(data,ss):
-    G = nx.Graph()
+    #G = nx.Graph()
+    G = nx.DiGraph()
     for i in range(0,len(data)):
         G.add_node(i)
     Matrix = np.array(data)
@@ -54,7 +52,8 @@ def drwa_map(data,ss):
         temp=0
         for j in range(len(Matrix)):
             if Matrix[i][j]==1:
-                G.add_weighted_edges_from([(i, j, 1)])
+                G.add_edges_from([(i,j)])
+                #G.add_weighted_edges_from([(i, j, 1)])
                 #G.add_edge(i,j)
                 temp = temp + 1
         degree.append(temp)#求度数和
@@ -110,7 +109,7 @@ def drwa_map(data,ss):
 
 
 name,hometown,dialect = read_xls()
-drwa_map(name,"name")
+#drwa_map(name,"name")
 drwa_map(hometown,"hometown")
-drwa_map(dialect,"dialect")
-plt.show()
+#drwa_map(dialect,"dialect")
+#plt.show()
