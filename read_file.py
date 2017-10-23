@@ -69,7 +69,11 @@ def drwa_map(data,ss):
 
 
     if nx.is_connected(G):
-        average_shortest = nx.average_shortest_path_length(G)
+        #average_shortest = nx.average_shortest_path_length(G)
+        average_shortest = []
+        for node in G:
+            path_length=nx.single_source_dijkstra_path_length(G, node)
+            average_shortest.append(sum(path_length.values())/len(path_length))
         print("average_shortest:", average_shortest)
     else:
         # 获得图的子图
@@ -82,8 +86,11 @@ def drwa_map(data,ss):
                 #len(g)返回的是g的节点数
                 average_shortest.append(0)
             else:
-                average_shortest.append(nx.average_shortest_path_length(g))
-                print("average_shortest_path_length:", nx.average_shortest_path_length(g))
+                average_shortest = []
+                for node in G:
+                    path_length = nx.single_source_dijkstra_path_length(G, node)
+                    average_shortest.append(sum(path_length.values()) / len(path_length))
+                print("average_shortest:", average_shortest)
     plt.subplot(2,3,1)
     plt.bar(range(len(degree)), degree)#画度分布的直方图展示出来
     plt.title("degree")
@@ -97,7 +104,7 @@ def drwa_map(data,ss):
     plt.bar(range(len(average_shortest)),average_shortest)#画平均最短路径长度
     plt.title("average_shortest")
     plt.subplot(2,3,5)
-    nx.draw(G,with_labels=True)
+    nx.draw(G,with_labels=True,hold=True)
     plt.title(ss + (" network"))
     plt.show()
 
