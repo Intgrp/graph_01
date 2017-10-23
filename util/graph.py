@@ -1,8 +1,10 @@
 import sys
+import copy
 from pylab import *
+import random
 sys.setrecursionlimit(1500) # set the maximum depth as 1500
 class graph(object):
-    def printDegree(self,data):
+    def Degree(self,data):
         degree=[]
         for i in range(len(data)):
             temp = 0
@@ -10,9 +12,10 @@ class graph(object):
                 if data[i][j] == 1:
                     temp = temp + 1
             degree.append(temp)  # 求度数和
-        print("Degree:", degree)
+        #print("Degree:", degree)
+        return degree
 
-    def printClustering(self,data):
+    def Clustering(self,data):
         cluster=[]
         for i in range(len(data)):
             sum=0
@@ -26,22 +29,10 @@ class graph(object):
                         sum=sum+1
             cluster.append(sum/(len(temp)*(len(temp)-1)/2.0))
         print("Cluster:",cluster)
-    '''
-    def search(self,i,data,cnt):
-        for j in range(len(data)):
-            if data[i][j]==1:
-                self.search(j,data,cnt+1)
+        return cluster
 
-    def connect_component(self,data):
-        cnt=1
-        for i in range(len(data)):
-            for j in range(len(data)):
-                if data[i][j]==1:
-                    self.search(i, data, cnt)
-                    print("cnt:", cnt)
-                    break
-    '''
     def Floyd(self,data):
+        #data = copy.deepcopy(dd)
         INFINITY = 65535
         for i in range(len(data)):
             for j in range(len(data)):
@@ -53,7 +44,6 @@ class graph(object):
         for i in range(lengthD):
             P.append(p)
         P = array(P)
-
         for i in range(lengthD):
             for j in range(lengthD):
                 for k in range(lengthD):
@@ -81,42 +71,40 @@ class graph(object):
                 avg_shortset_path.append(sum/cnt)
         print(avg_shortset_path)
         return avg_shortset_path
-'''
-    def ffloyd(self, data_matrix):
 
-        #输入：原数据矩阵，即：一个二维数组
-        #输出：顶点间距离
+    def corona(self,data):
+        core = []
+        for k in range(len(data)):
+            min = 0
+            degree = self.Degree(data)
+            for i in range(len(degree)):
+                if degree[min] > degree[i] and degree[i]!=0 and degree[min]!=0:
+                    min = i
+            core.append(degree[min])
+            print("degree[min]",degree[min],min)
+            for j in range(len(degree)):
+                data[min][j] = 0
+        print("core:",core)
+        return core
+
+    def intential_attack(self,data,i):
+        for j in range(len(data)):
+            data[i][j]=0
+        return self.Floyd(data)
+
+    def radom_attack(self,data):
+        i =random.random(1,len(data))
+        for j in range(len(data)):
+            data[i][j]=0
+        return self.Floyd(data)
 
 
-        INFINITY = 65535
-        for i in range(len(data_matrix)):
-            for j in range(len(data_matrix)):
-                if data_matrix[i][j] != 0:
-                    data_matrix[i][j] = 65535
 
-        dist_matrix = []
-        path_matrix = []
-        vex_num = len(data_matrix)
-        for h in range(vex_num):
-            one_list = [65535] * vex_num
-            path_matrix.append(one_list)
-            dist_matrix.append(one_list)
-        for i in range(vex_num):
-            for j in range(vex_num):
-                dist_matrix = data_matrix
-                path_matrix[i][j] = j
-        for k in range(vex_num):
-            for i in range(vex_num):
-                for j in range(vex_num):
-                    if dist_matrix[i][k] == 65535 or dist_matrix[k][j] == 65535 :
-                        temp = 65535
-                    else:
-                        temp = dist_matrix[i][k] + dist_matrix[k][j]
-                    if dist_matrix[i][j] > temp:
-                        dist_matrix[i][j] = temp
-                        path_matrix[i][j] = path_matrix[i][k]
-        return dist_matrix, path_matrix
-'''
+
+
+
+
+
 
 '''
     def printAvgPath(self):
