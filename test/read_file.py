@@ -4,6 +4,8 @@ import pandas as pd
 import networkx as nx
 import xlrd
 import matplotlib.pyplot as plt
+import random
+import math
 
 #读取Excel表格数据
 def read_xls(filename="../write.xls"):
@@ -39,6 +41,24 @@ def printList(table):
     for row in table:
         print(row)
 
+def intential_attack(G,i):
+    G.remove_node(i)
+    return short_path(G)
+
+def radom_attack(G):
+    #i = random.random(1,63)
+    i = random.randint(1, 63)
+    G.remove_node(i)
+    return short_path(G)
+
+#所有点的最短路
+def short_path(G):
+    average_shortest = []
+    for node in G:
+        path_length = nx.single_source_dijkstra_path_length(G, node)
+        average_shortest.append(sum(path_length.values()) / len(path_length))
+    return average_shortest
+
 #构建图，并且绘制图的结构
 def drwa_map(data,ss):
     #G = nx.Graph()
@@ -47,18 +67,17 @@ def drwa_map(data,ss):
         G.add_node(i)
     Matrix = np.array(data)
     G = nx.from_numpy_matrix(Matrix)
-    degree=[]
+    degree = []
     for i in range(len(Matrix)):
-        temp=0
+        temp = 0
         for j in range(len(Matrix)):
-            if Matrix[i][j]==1:
-                G.add_edges_from([(i,j)])
-                #G.add_weighted_edges_from([(i, j, 1)])
-                #G.add_edge(i,j)
+            if Matrix[i][j] == 1:
+                G.add_edges_from([(i, j)])
+                # G.add_weighted_edges_from([(i, j, 1)])
+                # G.add_edge(i,j)
                 temp = temp + 1
-        degree.append(temp)#求度数和
-
-    print("degree:",degree)
+        degree.append(temp)  # 求度数和
+    print("degree:", degree)
     # 计算各个节点的群聚系数
     cluster = list(nx.clustering(G).values())
     print("Cluster:",cluster)
@@ -75,6 +94,24 @@ def drwa_map(data,ss):
             average_shortest.append(sum(path_length.values())/len(path_length))
         print("average_shortest:", average_shortest)
     else:
+        G = max(nx.connected_component_subgraphs(G), key=len)
+        average_shortest = []
+        for node in G:
+            path_length = nx.single_source_dijkstra_path_length(G, node)
+            average_shortest.append(sum(path_length.values()) / len(path_length))
+        print("average_shortest:", average_shortest)
+
+        dist_r = radom_attack(G)
+        print("dist_r:", dist_r)
+        mmax = 0
+        for i in range(len(degree)):
+            if degree[mmax] < degree[i]:
+                mmax = i
+        dist_i = intential_attack(G, mmax)
+        print("dist_i:", dist_i)
+
+    '''
+    else:
         # 获得图的子图
         graphs = nx.connected_component_subgraphs(G)
         average_shortest = []
@@ -90,6 +127,17 @@ def drwa_map(data,ss):
                     path_length = nx.single_source_dijkstra_path_length(G, node)
                     average_shortest.append(sum(path_length.values()) / len(path_length))
                 print("average_shortest:", average_shortest)
+
+                dist_r = radom_attack(G)
+                print("dist_r:",dist_r)
+                max = 0
+                for i in range(len(degree)):
+                    if degree[max] < degree[i]:
+                        max = i
+                dist_i = intential_attack(G, max)
+                print("dist_i:",dist_i)
+    '''
+
     plt.subplot(2,3,1)
     plt.bar(range(len(degree)), degree)#画度分布的直方图展示出来
     plt.title("degree")
@@ -110,6 +158,6 @@ def drwa_map(data,ss):
 
 name,hometown,dialect = read_xls()
 #drwa_map(name,"name")
-drwa_map(hometown,"hometown")
+#drwa_map(hometown,"hometown")
 #drwa_map(dialect,"dialect")
 #plt.show()

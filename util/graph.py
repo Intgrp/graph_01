@@ -1,7 +1,6 @@
-import sys
-import copy
 from pylab import *
 import random
+import networkx as nx
 sys.setrecursionlimit(1500) # set the maximum depth as 1500
 class graph(object):
     def Degree(self,data):
@@ -69,7 +68,7 @@ class graph(object):
                 avg_shortset_path.append(0)
             else:
                 avg_shortset_path.append(sum/cnt)
-        print(avg_shortset_path)
+        #print(avg_shortset_path)
         return avg_shortset_path
 
     def corona(self,data):
@@ -81,56 +80,46 @@ class graph(object):
                 if degree[min] > degree[i] and degree[i]!=0 and degree[min]!=0:
                     min = i
             core.append(degree[min])
-            print("degree[min]",degree[min],min)
+            #print("degree[min]",degree[min],min)
             for j in range(len(degree)):
                 data[min][j] = 0
         print("core:",core)
         return core
 
-    def intential_attack(self,data,i):
+    def remove_node(self,data,i):
         for j in range(len(data)):
             data[i][j]=0
-        return self.Floyd(data)
+            data[j][i]=0
+        return data
+
+    def intential_attack(self,data,i):
+        data = self.remove_node(data, i)
+        dd = self.Floyd(data)
+        return self.avg_shortest_path(dd)
 
     def radom_attack(self,data):
-        i =random.random(1,len(data))
-        for j in range(len(data)):
-            data[i][j]=0
-        return self.Floyd(data)
+        i = random.randint(1,63)
+        data = self.remove_node(data, i)
+        dd = self.Floyd(data)
+        return self.avg_shortest_path(dd)
 
+    '''
+    # 所有点的最短路
+    def short_path(self,G):
+        average_shortest = []
+        for node in G:
+            path_length = nx.single_source_dijkstra_path_length(G, node)
+            average_shortest.append(sum(path_length.values()) / len(path_length))
+        return average_shortest
+    
+    #通过networkx，自己实现的随机攻击和特定攻击
+    def intential_attack(self,G, i):
+        G.remove_node(i)
+        return self.short_path(G)
 
-
-
-
-
-
-
-
-'''
-    def printAvgPath(self):
-        if nx.is_connected(G):
-            # average_shortest = nx.average_shortest_path_length(G)
-            average_shortest = []
-            for node in G:
-                path_length = nx.single_source_dijkstra_path_length(G, node)
-                average_shortest.append(sum(path_length.values()) / len(path_length))
-            print("average_shortest:", average_shortest)
-        else:
-            # 获得图的子图
-            graphs = nx.connected_component_subgraphs(G)
-            average_shortest = []
-            for g in graphs:
-                # 计算平均最短路
-                print(g)
-                if len(g) <= 1:  # 公式是avg/(n*(n-1))，所以连1都不能
-                    # len(g)返回的是g的节点数
-                    average_shortest.append(0)
-                else:
-                    average_shortest = []
-                    for node in G:
-                        path_length = nx.single_source_dijkstra_path_length(G, node)
-                        average_shortest.append(sum(path_length.values()) / len(path_length))
-                    print("average_shortest:", average_shortest)
-
-
-'''
+    def radom_attack(self,G):
+        # i = random.random(1,63)
+        i = random.randint(1, 63)
+        G.remove_node(i)
+        return self.short_path(G)
+    '''
