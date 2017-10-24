@@ -82,8 +82,9 @@ def drwa_map(data,ss):
     cluster = list(nx.clustering(G).values())
     print("Cluster:",cluster)
     # 计算核数
-    core_number = list(nx.core_number(G).values())
-    print("k_corona:",core_number)
+    g = max(nx.connected_component_subgraphs(G), key=len)
+    core_number = list(nx.core_number(g).values())
+    print("k_corona:",core_number,len(core_number),len(g))
 
 
     if nx.is_connected(G):
@@ -157,7 +158,7 @@ def drwa_map(data,ss):
 
 
 name,hometown,dialect = read_xls()
-#drwa_map(name,"name")
+drwa_map(name,"name")
 #drwa_map(hometown,"hometown")
 #drwa_map(dialect,"dialect")
 #plt.show()

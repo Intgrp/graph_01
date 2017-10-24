@@ -1,7 +1,7 @@
 from pylab import *
 import random
 import networkx as nx
-sys.setrecursionlimit(1500) # set the maximum depth as 1500
+import math
 class graph(object):
     def Degree(self,data):
         degree=[]
@@ -71,35 +71,65 @@ class graph(object):
         #print(avg_shortset_path)
         return avg_shortset_path
 
+    def dataToG(self,data):
+        G = nx.DiGraph()
+        for i in range(0, len(data)):
+            G.add_node(i)
+        Matrix = np.array(data)
+        G = nx.from_numpy_matrix(Matrix)
+        degree = []
+        for i in range(len(Matrix)):
+            for j in range(len(Matrix)):
+                if Matrix[i][j] == 1:
+                    G.add_edges_from([(i, j)])
+        return G
+
+    def gToData(self,G):
+        return nx.adjacency_matrix(G).todense()
+
+    def find_Min_degree_index(self,degree):
+        mmin=0
+        for i in range(len(degree)):
+            if degree[mmin] > degree[i]:
+                mmin = i
+        return mmin
+
+    # 按照分数排序
+    def by_degree(self,t):
+        return t[1]
+
     def corona(self,data):
-        core = []
+        G = self.dataToG(data)
+        G = max(nx.connected_component_subgraphs(G), key=len)#返回最大连通子图
+        core = {}
+        print("degree:",G.degree())
         for k in range(len(data)):
-            min = 0
-            degree = self.Degree(data)
-            for i in range(len(degree)):
-                if degree[min] > degree[i] and degree[i]!=0 and degree[min]!=0:
-                    min = i
-            core.append(degree[min])
-            #print("degree[min]",degree[min],min)
-            for j in range(len(degree)):
-                data[min][j] = 0
-        print("core:",core)
+            degree = G.degree()
+            mmin=0
+            if len(degree):
+                degree_sort = sorted(degree, key=self.by_degree)
+                mmin = degree_sort[0][0]
+                if G.has_node(mmin):
+                    core[mmin] = degree[mmin]
+                    G.remove_node(mmin)
+        core = sorted(core.items())
+        print("sort_cor:", core)
         return core
 
-    def remove_node(self,data,i):
+    def remove_node_adj(self,data,i):
         for j in range(len(data)):
             data[i][j]=0
             data[j][i]=0
         return data
 
     def intential_attack(self,data,i):
-        data = self.remove_node(data, i)
+        data = self.remove_node_adj(data, i)
         dd = self.Floyd(data)
         return self.avg_shortest_path(dd)
 
     def radom_attack(self,data):
         i = random.randint(1,63)
-        data = self.remove_node(data, i)
+        data = self.remove_node_adj(data, i)
         dd = self.Floyd(data)
         return self.avg_shortest_path(dd)
 
