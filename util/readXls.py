@@ -11,7 +11,7 @@ def read_xls(filename="../write.xls"):
     dialect = char_to_bit(dialect)
     return name,hometown,dialect
 
-#对数据去除第一行和第一列的索引条目，得到纯粹的数据，并对y,n,m设值为1,0,1
+#对数据去除第一行和第一列的索引条目，得到纯粹的数据，并对y,n,m设值为1,0,0
 def char_to_bit(table):
     nrows = table.nrows
     ncols = table.ncols
