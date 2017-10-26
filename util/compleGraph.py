@@ -1,11 +1,8 @@
 from pylab import *
 import util.readXls
 import random
-import networkx as nx
 import matplotlib.pyplot as plt
-import math
-import numpy as np
-import copy
+
 
 
 def Degree(data):
@@ -52,13 +49,17 @@ def Floyd(data):
     for k in range(length):
         for i in range(length):
             for j in range(length):
+                if temp[i][k]==0 or temp[k][j]==0 or temp[i][k]==-1 or temp[k][j]==-1:
+                    continue
                 if temp[i][k]+temp[k][j]<temp[i][j]:
                     temp[i][j]=temp[i][k]+temp[k][j]
+    '''
     for i in range(length):
         for j in range(length):
             if temp[i][j]>=INF:
                 temp[i][j]=0
-    print("Floyd:",temp)
+    '''
+    #print("Floyd:",temp)
     return temp
 
 def avg_shortest_path(data,num):
@@ -74,7 +75,7 @@ def avg_shortest_path(data,num):
                 sum = sum + shortest[i][j]
     if sum==0:
         return 0
-    print("num:",num,"sum=",sum,"avg_shortest:",sum/(num*(num-1)/2))
+    #print("num:",num,"sum=",sum,"avg_shortest:",sum/(num*(num-1)/2))
     #print("avg_shortest:",sum/(num*(num-1)/2))
     return sum/(num*(num-1)/2)
 
@@ -114,10 +115,11 @@ def random_attack(data):
     INF=1000000
     length = len(data)
     tmpMatrix = [[data[i][j] for i in range(length)]
-                 for j in range(length)]
-    flagArray={}
+                                    for j in range(length)]
+    flagArray = [0 for i in range(length)]
     avgLength={}
     for i in range(length-1):
+        print("i=",i)
         for k in range(length):
             flagArray[k]=0
             for j in range(length):
@@ -125,14 +127,14 @@ def random_attack(data):
         #去除i个点
         for j in range(i):
             randomNum = random.randint(0,62)
+            while flagArray[randomNum]==1:
+                randomNum = random.randint(0, 62)
             if flagArray[randomNum]==0:
                 flagArray[randomNum]=1
                 for k in range(length):
                     if tmpMatrix[randomNum][k]==1:
-                        tmpMatrix[randomNum][k] = INF
-                        tmpMatrix[k][randomNum] = INF
-            else:
-                j=j-1
+                        tmpMatrix[randomNum][k] = -1
+                        tmpMatrix[k][randomNum] = -1
         avgLength[i]=avg_shortest_path(tmpMatrix,length-i)
     avgLength[length-1]=0
     print("random_attack:",avgLength)
@@ -171,11 +173,10 @@ def intent_attack(data):
     return avgLength
 
 
-
 name,hometown,dialect = util.readXls.read_xls()
 #print(Floyd(name))
 
-avgLength = intent_attack(name)
+avgLength = random_attack(name)
 x = [i/63 for i in range(len(avgLength))]
 y=[avgLength[i] for i in range(len(avgLength))]
 plt.scatter(x, y)  # 画随机攻击
